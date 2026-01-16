@@ -12,6 +12,7 @@ fastapi = "^0.115.8"
 uvicorn = "^0.34.0"
 pytest = "^8.3.4"
 pytest-timeout = "^2.4.0"
+sqlalchemy = "^2.0.0"
 
 [tool.poetry.group.development.dependencies]
 black = {extras = ["d"], version = "^24.8.0"}

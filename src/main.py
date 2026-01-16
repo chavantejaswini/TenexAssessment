@@ -6,6 +6,10 @@ from fastapi.responses import HTMLResponse
 
 from lib.todo_manager import TodoManager
 from lib.models import Todo, TodoWithChildren
+from lib.database import init_db
+
+# Initialize database on startup
+init_db()
 
 app = FastAPI()
 manager = TodoManager()
@@ -191,5 +195,17 @@ async def add_todo(
 
 
 @app.delete("/todo/{todo_uuid}")
-async def remove_todo(todo_uuid: str) -> bool:
-    return manager.remove_todo(todo_uuid)
+async def remove_todo(todo_uuid: str, delete_mode: str = "safe") -> dict:
+    """
+    Delete a todo with configurable deletion strategy.
+    
+    - delete_mode='safe' (default): Error if todo has children
+    - delete_mode='cascade': Delete parent and all descendants
+    - delete_mode='orphan': Delete parent, make children root-level
+    """
+    return manager.remove_todo(UUID(todo_uuid), delete_mode)
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
