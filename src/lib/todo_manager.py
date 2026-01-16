@@ -16,8 +16,7 @@ class TodoManager:
         if parent_uuid and (self.try_get_todo_by_uuid(parent_uuid) is None):
             raise ValueError(f"Parent todo with uuid {parent_uuid} does not exist.")
 
-        todo = Todo(title=title, description=description)
-
+        todo = Todo(title=title, description=description, parent_uuid=parent_uuid)
 
         self._todo_list.append(todo)
         return todo
@@ -59,11 +58,17 @@ class TodoManager:
         return copy(self._todo_list)
 
     def get_children(self, parent_uuid: UUID) -> list[UUID]:
-        raise NotImplementedError(
-            "This should return the UUIDs of the direct children of the parent."
-        )
+        """Return the UUIDs of the direct children of the parent."""
+        children = []
+        for todo in self._todo_list:
+            if todo.parent_uuid == parent_uuid:
+                children.append(todo.uuid)
+        return children
 
     def get_children_recursive(self, parent_uuid: UUID) -> list[UUID]:
-        raise NotImplementedError(
-            "This should return a list of UUIDs of children and children's children, etc."
-        )
+        """Return a list of UUIDs of children and children's children, etc."""
+        children = self.get_children(parent_uuid)
+        all_descendants = list(children)
+        for child_uuid in children:
+            all_descendants.extend(self.get_children_recursive(child_uuid))
+        return all_descendants
